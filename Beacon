@@ -1,0 +1,48 @@
+#include <TinyGPS++.h>
+
+//#include <TimerOne.h>
+int interruptPin = 20;    // Use Pin 20 for the interrupt to begin the RIDE algorithm
+int gpsPin = 19;          // Use Pin 19 for receiving data from the GPS receiver
+TinyGPSPlus gps;
+double lat;
+double lng;
+bool beginRide;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  beginRide = false;
+  attachInterrupt(digitalPinToInterrupt(interruptPin), beginRIDE, RISING);  // Use this to start the R.I.D.E algorithm
+  attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);       // Interrupt which is generated every 0.1 second by receiving data from the GPS receiver
+}
+
+// Interrupt to receive the GPS readings every tenth of a second
+void receiveGPS() {
+  while (Serial1.available () > 0) {
+     if (gps.encode(Serial1.read() ) ) {
+      lat = gps.location.lat();
+      lng = gps.location.lng();
+      //Serial.println(lat, 6);
+      //Serial.println(lng, 6);
+    }
+  }
+
+}
+
+// When the beacon sends the "start" message, begin the RIDE algorithm
+void beginRIDE() {
+  beginRide = true;
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  // Begin the R.I.D.E. algorithm here
+  while (beginRide) {
+
+    // Take data here:
+    Serial.println(lat, 6);
+    Serial.println(lng, 6);
+  }
+
+}
