@@ -1,0 +1,68 @@
+//#include <SD.h>
+//#include <SPI.h>
+
+/*
+ * miso -  50(digital)
+ * scl - 52(digital)
+ * mos1 - 51(digital)
+ * cs - 53(digital)
+ */
+
+//int CS_PIN = 53;
+//
+//File file;
+char incomingByte;
+long int startTime;
+long int endTime;
+long int elapsedTime;
+int count = 0;
+//char str[2];
+void setup()
+{
+
+  Serial.begin(9600);
+  //Serial.write(1);
+
+  Serial1.begin(9600);
+  Serial.flush();
+  Serial1.flush();
+
+ //  Serial.write(1);
+  // delay(10000);
+  // Serial.write(1);
+   
+}
+
+
+void endTest() {
+  Serial.print("Start time: "); Serial.println(startTime);
+  Serial.print("End time: "); Serial.println(endTime);
+  Serial.print("Elapsed time: "); Serial.println(elapsedTime);
+}
+void loop(){
+  
+  while ( Serial1.available() > 0 ) {
+    incomingByte = Serial1.read();
+    //Serial.print(incomingByte);
+    if(incomingByte == '$'){
+
+      if (count == 1) {
+        endTime = micros();
+        elapsedTime = endTime - startTime;
+        endTest();
+      }
+      
+      if (count == 0) {
+        Serial.println("Timer started...");
+        count++;
+        startTime = micros();
+      }
+
+
+      
+      //Serial.println("Message received");
+    }
+  }
+  
+
+}
