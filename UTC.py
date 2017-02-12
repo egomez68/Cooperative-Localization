@@ -1,7 +1,7 @@
-import serial
+import serial #You must install pyserial for this to work
 import time
 import datetime
-ser = serial.Serial("/dev/cu.usbmodem1411", 9600)
+ser = serial.Serial("/dev/cu.usbmodem1411", 9600) #make sure to configure which COM port the Arduino is in
 time.sleep(7)
 ser.flushOutput()
 message = datetime.datetime.utcnow()
