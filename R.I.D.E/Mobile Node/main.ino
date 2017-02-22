@@ -4,7 +4,6 @@
 /********** Object Instantiation **********/
 EasyTransfer ETin, ETout;
 TinyGPSPlus gps;
-
 /********** Structure Instantiation **********/
 struct RECEIVE_DATA_STRUCTURE{
   //put your variable definitions here for the data you want to receive
