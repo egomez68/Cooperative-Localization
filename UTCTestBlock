@@ -8,18 +8,16 @@ void setup()
 
   Serial.begin(9600);
 
-
   Serial1.begin(9600);
   Serial.flush();
   Serial1.flush();
-   
 }
 
 
 void endTest() {
   Serial.print("Start time: "); Serial.println(startTime);
   Serial.print("End time: "); Serial.println(endTime);
-  Serial.print("Elapsed time: "); Serial.println(elapsedTime);
+  //Serial.print("Elapsed time: "); Serial.println(elapsedTime);
 }
 void loop(){
   
@@ -30,7 +28,7 @@ void loop(){
 
       if (count == 1) {
         endTime = micros();
-        elapsedTime = endTime - startTime;
+        //elapsedTime = endTime - startTime;
         endTest();
       }
       
@@ -39,10 +37,6 @@ void loop(){
         count++;
         startTime = micros();
       }
-
-
-      
-      //Serial.println("Message received");
     }
   }
   
