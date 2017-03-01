@@ -28,6 +28,7 @@ double gpsLat, gpsLng; // GPS Related Variable Initialization
 double x_prev; // Previous Position Estimate
 double x_new; // Current Position Estimate
 int n_ii = 15;
+int gpsPin = 19; // Pin 19 can be used as interrupts to receive GPS data
 double neigh_error_set[15];
 
 int count = 0;
@@ -38,11 +39,14 @@ void setup() {
 Serial.begin (9600);
 ETin.begin(details(rxdata), &Serial);
 ETout.begin(details(txdata), &Serial);
+attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING); // Use attach interrupt for the GPS interrupts
 }
 
 void loop() {
-
-
+  
+  noInterrupts(); // Turn off interrupts inside of the loop() function to prevent the GPS interrupt from prematurely leaving loop()
+  // I have added this code into the "receiveGPS()" function so you receive GPS data in the interrupt
+  // You can get rid of this code if you want to receive GPS data inside of the interrupt as opposed to inside the loop()
   while (Serial1.available () > 0) {
      if (gps.encode(Serial1.read() ) ) {
      gpsLat = gps.location.lat();
@@ -57,19 +61,30 @@ void loop() {
     neigh_error_set[count] = rxdata.rxError; //add received Latitude error to error array
     count++; //increment index for next error
   }
- 
+  interrupts(); // Turn interrupts back once loop() is done
+} // End of loop()
+
 /////////////////////////////////////////////////////////////////////
 //////////// START OF CODE TO PUT INTO THE GPS INTERRUPT ////////////
 /////////////////////////////////////////////////////////////////////
   // Execute the positionEstimateUpdate Stage of R.I.D.E
- x_new = positionEstimateUpdate(x_prev, neigh_error_set, n_ii, F);
- x_prev = x_new;
- ETout.sendData();
+void receiveGPS() {
+  while (Serial1.available () > 0) {
+     if (gps.encode(Serial1.read() ) ) {
+     gpsLat = gps.location.lat();
+     gpsLng = gps.location.lng();
+    }
+  } 
+x_new = positionEstimateUpdate(x_prev, neigh_error_set, n_ii, F);
+x_prev = x_new;
+ETout.sendData();
+} // End of Interrupt Service Routine
+
 /////////////////////////////////////////////////////////////////////
 //////////// END OF CODE TO PUT INTO THE GPS INTERRUPT //////////////
 /////////////////////////////////////////////////////////////////////
 
-}
+
 
 /********** Function Definitions **********/
 
