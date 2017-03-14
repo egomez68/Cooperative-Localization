@@ -17,8 +17,8 @@ File mySensorData;
 
 //********** Variable Declaration **********//
  
-double knownLng = -83.84288038; // Known Longitude 
-double knownLat =  40.76332156; // Known Latitude
+double knownLng = -83.8428802000; // Known Longitude 
+double knownLat =  40.7633216000; // Known Latitude
 double lngError; // Calculated Longitude Error
 double latError; // Calculated Latitude  Error
 int CS_PIN = 53; // SD Module Chip-Select Pin
