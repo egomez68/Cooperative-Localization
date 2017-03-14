@@ -1,6 +1,6 @@
 /* 
  *  File        : baseGpsError_Node1.ino
- *  Description : Calculate and log 100 instances of node 1's base gps error.
+ *  Description : Calculate and log 100 instances of node 1's base gps error. (Northmost Node)
  *  Author      : Edgar Gomez 
  */
 
@@ -17,8 +17,8 @@ File mySensorData;
 
 //********** Variable Declaration **********//
  
-double knownLng = -83.84288012; // Known Longitude 
-double knownLat =  40.76339993; // Known Latitude
+double knownLng = -83.8428799300; // Known Longitude 
+double knownLat =  40.7633999700; // Known Latitude
 double lngError; // Calculated Longitude Error
 double latError; // Calculated Latitude  Error
 int CS_PIN = 53; // SD Module Chip-Select Pin
