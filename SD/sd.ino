@@ -1,3 +1,11 @@
+/* 
+ *  File        : sd.ino
+ *  Description : SD reader implementation example. 
+ *  Author      : Edgar Gomez 
+ *  Date        : 14 March 2017
+ *  Version     : 1.0
+ */
+
 //********** Library Includes **********//
 
 #include <SD.h> // Must include the SD library
