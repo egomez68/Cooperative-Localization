@@ -6,6 +6,8 @@
  *  Version     : 1.0
  */
  
+/*** Make sure to incoroporate the "beginRide" function - See the RSU ***/
+
 //********** Library Includes **********//
 
 #include <EasyTransfer.h>
