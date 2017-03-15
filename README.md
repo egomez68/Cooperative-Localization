@@ -14,7 +14,7 @@ We should provide links to provide the newer students information that would ben
 * Arduino Tutorials
 * XCTU Tutorials
 * How Does GPS Work
-* Anything we wished that we had when we started!!!
+* Anything we wish that we had when we started!!!
 
 ### Required Software
 
@@ -27,18 +27,15 @@ We need a list of software used here
 * XCTU (XBee Configuration Platform)
   * [Download](https://www.digi.com/products/xbee-rf-solutions/xctu-software/xctu)
 
-
-
 ## Platform
 
 Explain the testing platform that we are using along with its components:
-* Arduino Mega
-* XBee Communication Module
-* RC Car
-* GPS Receiver
-* SD Reader
 
-### Describe components here
+### Arduino Mega
+### XBee Communication Module
+### RC Car
+### GPS Receiver
+### SD Reader
 
 ## Authors
 
@@ -47,7 +44,7 @@ Explain the testing platform that we are using along with its components:
 * **Theodore Jantzen**
 * **Kyle Lanquist**
 
-We should also provide a link to a list of contributors who participated in this project.
+We should also provide a link to a list of contributors who participated in this project, if any.
 
 ## License
 
