@@ -47,6 +47,7 @@ int i = 0;
 int n_ii = 15;
 int interruptPin = 20;
 int gpsPin = 19;
+double GPSReceiveTime; // Store the value of micros() in this variable and save it to the SD card
 double gpsLat, gpsLng;
 double x_prevLat, x_prevLng;
 double x_newLat, x_newLng;
@@ -58,6 +59,8 @@ void setup(){
   Serial1.begin(9600);
   delay(1000);
   //start the library, pass in the data details and the name of the serial port.
+ 
+  // Get rid of all uses of EZ transfer
   ETin.begin(details(rxdata), &Serial);
   ETout.begin(details(txdata), &Serial);
   initializeSD();
@@ -66,10 +69,12 @@ void setup(){
 }
 
 void loop(){
-
-  dataFile = SD.open("MobileTest1.txt", FILE_WRITE);
+  // Make sure to change the name of the file in all of the locations that it is used
+  //dataFile = SD.open("test.txt", FILE_WRITE);
   
   if(newErrorFlag == true){
+     // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
+  ` dataFile = SD.open("test.txt", FILE_WRITE);
     txdata.latErr = myLatError;
     txdata.lngErr = myLngError;
     ETout.sendData();
@@ -77,8 +82,10 @@ void loop(){
     dataFile.print(x_newLat,6);
     dataFile.print(",");
     dataFile.println(x_newLng,6);
+    dataFile.close(); // I had to add this or else the data would not get wrote to the SD card. It would create the file but not write anything. Once I closed the file it started working properly
   }
   
+ // Remember to clear all of the arrays and reset i back to 0 - I don't know where that should be done.
   if(newErrorFlag == false){
     if(ETin.receiveData()){
       neighLatError[i] = rxdata.latErr;
@@ -93,13 +100,15 @@ void loop(){
  */
 void receiveGPS() {
   while (Serial1.available () > 0) {
+     GPSReceiveTime = micros(); // I got this working - I was able to make a function call to micros() in the ISR
      if (gps.encode(Serial1.read() ) ) {
       x_prevLat = gps.location.lat();
       x_prevLng = gps.location.lng();
     }
   }
-  x_newLat = positionEstimateUpdateLatitude(x_prevLat, neighLatError, n_ii, F);
-  x_newLng = positionEstimateUpdateLongitude(x_prevLng, neighLngError, n_ii, F);
+ // These two function calls should not be here - they should be in the main loop or elsewhere - not in the ISR
+  //x_newLat = positionEstimateUpdateLatitude(x_prevLat, neighLatError, n_ii, F);
+  //x_newLng = positionEstimateUpdateLongitude(x_prevLng, neighLngError, n_ii, F);
   newErrorFlag = true;
 }
 /**
@@ -121,6 +130,8 @@ int qsortCompare(const void * arg1, const void * arg2) {
   // must be equal
   return 0;
 }
+
+/*** Consider merging positionEstimateUpdateLatitude and Longitude ***/
 
 /**
  * Performs the position estimate update stage in order to calculate
@@ -262,13 +273,16 @@ double positionEstimateUpdateLongitude(double x_prev, double* diff_error_set, in
   return x_new;
 }
 
+/*** Consider merging positionEstimateUpdateLatitude and Longitude ***/
+
 void initializeSD()
 {
   pinMode(10, OUTPUT); // Must declare 10 an output and reserve it to keep SD card happy
   SD.begin(CS_PIN);    // Initialize the SD card reader
 
-  if (SD.exists("MobileNodeTest1.txt")) { // Delete old data files to start fresh
-      SD.remove("MobileNodeTest1.txt");
+ // Make sure the name of the file is small enough 
+  if (SD.exists("test.txt")) { // Delete old data files to start fresh
+      SD.remove("test.txt");
   }
 }
 
