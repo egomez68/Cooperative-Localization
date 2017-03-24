@@ -1,0 +1,29 @@
+/* 
+ *  File        : rttTestTX.ino
+ *  Description : Used to find the RTT of a message with Easy Transfer 
+ *  Author      : Edgar Gomez / Tim Coulter
+ *  Date        : 14 March 2017
+ *  Version     : 1.0
+ */
+
+int i=1;
+double startTime, stopTime, elapsedTime, timeStamp;
+double gpsLat = 40.7629320778;
+double gpsLng = -83.8428378694;
+
+void setup(){
+  Serial.begin(9600);
+  delay(1000);
+}
+
+void loop(){
+  String latString = String(gpsLat, 6);
+  String lngString = String(gpsLng, 6);
+if (Serial.available() > 0) {
+  if (Serial.read()) {
+    timeStamp = micros();
+    String stampString = String(timeStamp, 6);
+    Serial.println(latString + "," + lngString + "," + stampString);
+  }
+}
+}
