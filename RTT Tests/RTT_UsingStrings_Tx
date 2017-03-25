@@ -1,71 +1,67 @@
 /* 
  *  File        : rttTestTX.ino
  *  Description : Used to find the RTT of a message with Easy Transfer 
- *  Author      : Edgar Gomez 
+ *  Author      : Edgar Gomez / Tim Coulter
  *  Date        : 14 March 2017
  *  Version     : 1.0
  */
 
-//********** Library Includes **********//
-
-//#include <EasyTransfer.h>
-//
-////********** Object Instantiation **********//
-//
-//EasyTransfer ETin, ETout; 
-//
-//struct RECEIVE_DATA_STRUCTURE{
-//  //put your variable definitions here for the data you want to receive
-//  //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-//  double test;
-//
-//};
-//
-//struct SEND_DATA_STRUCTURE{
-//  //put your variable definitions here for the data you want to receive
-//  //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-//  double test;
-//};
-//
-////give a name to the group of data
-//RECEIVE_DATA_STRUCTURE rxdata;
-//SEND_DATA_STRUCTURE txdata;
-
-
 int i=1;
-double startTime, stopTime, elapsedTime, timeStamp;;
-double gpsLat = 40.7629320778;
-double gpsLng = -83.8428378694;
+double startTime, stopTime, elapsedTime;
+float gpsLat = 40.7629320778F;
+float gpsLng = -83.8428378694F;
+String latString= "40.7629320778"; // I tried just starting out by sending a string of the lat
+String lngString = "-83.8428378694"; // Try sending a string of the longitude
+float timeStamp;
+//String latString;
+//String lngString;
+String stampString;
 String incomingByte;
 
 void setup(){
   Serial.begin(9600);
-  delay(1000);
-  //start the library, pass in the data details and the name of the serial port.
-  //ETin.begin(details(rxdata), &Serial);
-  //ETout.begin(details(txdata), &Serial);
-  delay(1000);  
+  Serial.flush();
+  delay(2000);
+ 
 }
 
 void loop(){
-String latString = String(gpsLat, 6);
-String lngString = String(gpsLng, 6);
-String stampString = String(timeStamp, 6);
+
+// You can convert the floats to strings, but it is less accurate
+//latString = String(gpsLat, 10);
+//lngString = String(gpsLng, 10);
+
 if(i == 1){
 i++;
-//txdata.test = 0.0123;
 timeStamp = micros();
 startTime = micros();
-Serial.println(latString + "," + lngString + "," + stampString);
-//ETout.sendData();
+
+// You can transmit the strings, but it is less accurate than sending the floats to 10 sig figs
+//Serial.println(latString + "," + lngString);
+
+//sprintf(gpsLat);
+// Transmit the floats to 10 sig figs
+Serial.print(gpsLat, 10); Serial.print(","); Serial.println(gpsLng, 10);// Serial.print(","); Serial.println(timeStamp,10);
 }
 
 if (Serial.available() > 0) {
-  incomingByte = Serial.read();
+  //incomingByte = Serial.readStringUntil('\n');
+  // Read all of the strings until the comma, which separates the data
+  latString = Serial.readStringUntil(',');
+  lngString = Serial.readString();
+  //stampString = Serial.readString();
+  // Convert the received strings into floats so you can manipulate the floats
+  gpsLat = latString.toFloat();
+  gpsLng = lngString.toFloat();
+  //timeStamp = stampString.toFloat();
   stopTime = micros();
   elapsedTime = stopTime - startTime;
-  Serial.print("Elapsed Time: "); Serial.println(elapsedTime/1000);
-  
+
+  // Use this if you want to print the string elements
+  //Serial.print("Elapsed Time: "); Serial.println(elapsedTime); Serial.print(latString); Serial.print(","); Serial.print(lngString); Serial.print(","); Serial.print(stampString);
+
+  // Use this if you want to print the float elements, to 10 sig figs
+  Serial.print("Elapsed Time: "); Serial.println(elapsedTime); Serial.print(gpsLat,10); Serial.print(","); Serial.print(gpsLng,10);// Serial.print(","); Serial.print(timeStamp,10);
 }
 
 //if(ETin.receiveData()){
