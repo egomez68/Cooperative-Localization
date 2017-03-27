@@ -86,7 +86,9 @@ void loop(){
     newErrorFlag = false;
     dataFile.print(x_newLat,6);
     dataFile.print(",");
-    dataFile.println(x_newLng,6);
+    dataFile.print(x_newLng,6);
+    dataFile.print(",");
+    dataFile.println(GPSReceiveTime);
     dataFile.close(); // I had to add this or else the data would not get wrote to the SD card. It would create the file but not write anything. Once I closed the file it started working properly
   }
   
