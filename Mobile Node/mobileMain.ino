@@ -75,9 +75,9 @@ void loop(){
   x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F);
   if(newErrorFlag == true){
      // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
-    for (int i = 0; i < 15; i++) {
-      neighLatError[i] = 0;
-      neighLngError[i] = 0;
+    for (int j = 0; j < 15; j++) {
+      neighLatError[j] = 0;
+      neighLngError[j] = 0;
     }
     dataFile = SD.open("test.txt", FILE_WRITE);
     txdata.latErr = myLatError;
