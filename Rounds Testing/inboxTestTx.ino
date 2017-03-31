@@ -31,13 +31,12 @@ void setup(){
   Serial.begin(9600);
   //start the library, pass in the data details and the name of the serial port.
   ETout.begin(details(txdata), &Serial);
-  delay(1000);
   txdata.nodeID = 1;
-  delay(1000);
-  ETout.sendData();
+ // ETout.sendData();
 }
 
 void loop(){
-
+ETout.sendData();
+delay(100);
 }
 
