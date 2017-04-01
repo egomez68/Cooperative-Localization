@@ -35,7 +35,7 @@ void setup(){
   Serial.begin(9600);
   //start the library, pass in the data details and the name of the serial port.
   ETout.begin(details(txdata), &Serial);
-  txdata.nodeID = 1;
+  txdata.nodeID = 5;
 }
 
 void loop(){
