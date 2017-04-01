@@ -88,8 +88,6 @@ void loop(){
       }
     }
 
-    ETout.sendData();
-
     if(RSU){
       x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
       x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F,"");
@@ -104,6 +102,9 @@ void loop(){
 
       RSU = false;
       }
+ 
+    ETout.sendData();
+    delay(100);
 }
 
 
