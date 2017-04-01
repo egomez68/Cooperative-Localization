@@ -23,15 +23,15 @@ File dataFile;
 struct RECEIVE_DATA_STRUCTURE{
   //put your variable definitions here for the data you want to receive
   //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-  int latErr;
-  int lngErr;
+  double latErr;
+  double lngErr;
 };
 
 struct SEND_DATA_STRUCTURE{
   //put your variable definitions here for the data you want to receive
   //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-  int latErr;
-  int lngErr;
+  double latErr;
+  double lngErr;
 };
 
 //give a name to the group of data
