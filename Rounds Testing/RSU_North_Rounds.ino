@@ -33,14 +33,19 @@ int gpsPin       = 19;
 
 void setup(){
   Serial.begin(9600);
+  Serial1.begin(9600);
   //start the library, pass in the data details and the name of the serial port.
   ETout.begin(details(txdata), &Serial);
   txdata.nodeID = 5;
 }
 
 void loop(){
-  while (serial.available() > 0){
-    txdata.latErr = gps.location.lat() - knownLat;
-    txdata.lngErr = gps.location.lng() - knownLng;
-    ETout.sendData();
+  while (Serial1.available() > 0){
+    if (gps.encode(Serial1.read())) {
+        txdata.latErr = gps.location.lat() - knownLat;
+        txdata.lngErr = gps.location.lng() - knownLng;
+        ETout.sendData();
+    }
+  }
+
 }
