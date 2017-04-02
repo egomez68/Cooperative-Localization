@@ -1,9 +1,9 @@
 /* 
- *  File        : mobileNode_Rounds_Test.ino
+ *  File        : mobileNode2Test.ino
  *  Description : Implements the R.I.D.E localization algorithm. 
- *                Upload to mobile node 1
- *  Author      : Edgar Gomez, Tim Coulter, Theodore Jantzen
- *  Date        : 31 March 2017
+ *                Upload to mobile node 2
+ *  Author      : Edgar Gomez, Tim Coulter
+ *  Date        : 2 April 2017
  *  Version     : 1.0
  */
  
@@ -24,7 +24,7 @@ File dataFile;
 struct RECEIVE_DATA_STRUCTURE{
   //put your variable definitions here for the data you want to receive
   //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-  int nodeID;
+  int nodeID = 1;
   double latErr;
   double lngErr;
 };
@@ -44,16 +44,19 @@ SEND_DATA_STRUCTURE txdata;
 //********** Variable Declaration **********//
 
 bool RSU = false;
+bool mobileNode2 = false;
+bool mobileNode3 = false;
+bool mobileNode4 = false;
        
 int CS_PIN = 53;
 int F = 0;
 int i = 0;
-int n_ii = 1;
+int n_ii = 4;
 int gpsPin = 19;
 double gpsLat, gpsLng;
 double x_prevLat, x_prevLng;
 double x_newLat, x_newLng;
-double neighLatError[1], neighLngError[1];
+double neighLatError[4], neighLngError[4];
 double myLatError,myLngError;
 
 void setup(){
@@ -64,39 +67,53 @@ void setup(){
   ETin.begin(details(rxdata), &Serial);
   ETout.begin(details(txdata), &Serial);
   initializeSD();
-  txdata.nodeID = 0;
 }
 
 void loop(){
   
   while (Serial1.available () > 0) {
     if (gps.encode(Serial1.read() )) {
-      gpsLat = gps.location.lat();
-      gpsLng = gps.location.lng();
+      x_prevLat = gps.location.lat();
+      x_prevLng = gps.location.lng();
       }
     }
 
-    if (!RSU){
+    if (!RSU || !mobileNode2 || !mobileNode3 || !mobileNode4){
       if(ETin.receiveData()){
         switch(rxdata.nodeID){
+          case 1:
+            mobileNode1 = true;
+            neighLatError[0] = rxdata.latErr; 
+            neighLngError[0]= rxdata.lngErr; 
+            break;
+          case 3:
+            mobileNode3 = true;
+            neighLatError[1] = rxdata.latErr; 
+            neighLngError[1] = rxdata.lngErr; 
+            break;
+          case 4:
+            mobileNode4 = true;
+            neighLatError[2] = rxdata.latErr; 
+            neighLngError[2] = rxdata.lngErr; 
+            break;
           case 5:
             RSU = true;
-            Serial.print("latErr: "); Serial.println(rxdata.latErr,6);
+            neighLatError[3] = rxdata.latErr; 
+            neighLngError[3] = rxdata.lngErr; 
             break;
             }
-        neighLatError[(rxdata.nodeID)-5] = rxdata.latErr; // For mobileNode1 this is -2, for ALL OTHERS it will be -1;
-        neighLngError[(rxdata.nodeID)-5] = rxdata.lngErr; // For mobileNode1 this is -2, for ALL OTHERS it will be -1;
+        
       }
     }
 
-    if(RSU){
+    if(RSU && mobileNode2 && mobileNode3 && mobileNode4){
       x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
-        Serial.print("myLatError "); Serial.println(myLatError,6);
-        Serial.print("my new Lat: "); Serial.println(x_newLat,6);
+       // Serial.print("myLatError "); Serial.println(myLatError,6);
+       // Serial.print("my new Lat: "); Serial.println(x_newLat,6);
 
       x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F,"");
-        Serial.print("myLngError "); Serial.println(myLngError,6);
-        Serial.print("my new Lng: "); Serial.println(x_newLng,6);
+        //Serial.print("myLngError "); Serial.println(myLngError,6);
+        //Serial.print("my new Lng: "); Serial.println(x_newLng,6);
       txdata.latErr = myLatError;
       txdata.lngErr = myLngError;
       
@@ -107,6 +124,9 @@ void loop(){
       dataFile.close(); // I had to add this or else the data would not get wrote to the SD card. It would create the file but not write anything. Once I closed the file it started working properly
 
       RSU = false;
+      mobileNode2 = false;
+      mobileNode3 = false;
+      mobileNode4= false;
       }
  
     ETout.sendData();
