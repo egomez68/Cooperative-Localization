@@ -67,7 +67,6 @@ void setup(){
   ETin.begin(details(rxdata), &Serial);
   ETout.begin(details(txdata), &Serial);
   initializeSD();
-  txdata.nodeID = 0;
 }
 
 void loop(){
@@ -79,7 +78,7 @@ void loop(){
       }
     }
 
-    if (!RSU){
+    if (!RSU || !mobileNode1 || !mobileNode3 || !mobileNode4){
       if(ETin.receiveData()){
         switch(rxdata.nodeID){
           case 1:
@@ -107,7 +106,7 @@ void loop(){
       }
     }
 
-    if(RSU){
+    if(RSU && mobileNode1 && mobileNode3 && mobileNode4){
       x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
        // Serial.print("myLatError "); Serial.println(myLatError,6);
        // Serial.print("my new Lat: "); Serial.println(x_newLat,6);
