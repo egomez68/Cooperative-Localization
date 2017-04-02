@@ -46,7 +46,7 @@ SEND_DATA_STRUCTURE txdata;
 bool RSU = false;
        
 int CS_PIN = 53;
-int F = 2;
+int F = 0;
 int i = 0;
 int n_ii = 1;
 int gpsPin = 19;
@@ -79,18 +79,24 @@ void loop(){
     if (!RSU){
       if(ETin.receiveData()){
         switch(rxdata.nodeID){
-          case 1:
+          case 5:
             RSU = true;
+            Serial.print("latErr: "); Serial.println(rxdata.latErr,6);
             break;
             }
-        neighLatError[(rxdata.nodeID)-1] = rxdata.latErr; // For mobileNode1 this is -2, for ALL OTHERS it will be -1;
-        neighLngError[(rxdata.nodeID)-1] = rxdata.lngErr; // For mobileNode1 this is -2, for ALL OTHERS it will be -1;
+        neighLatError[(rxdata.nodeID)-5] = rxdata.latErr; // For mobileNode1 this is -2, for ALL OTHERS it will be -1;
+        neighLngError[(rxdata.nodeID)-5] = rxdata.lngErr; // For mobileNode1 this is -2, for ALL OTHERS it will be -1;
       }
     }
 
     if(RSU){
       x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
+        Serial.print("myLatError "); Serial.println(myLatError,6);
+        Serial.print("my new Lat: "); Serial.println(x_newLat,6);
+
       x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F,"");
+        Serial.print("myLngError "); Serial.println(myLngError,6);
+        Serial.print("my new Lng: "); Serial.println(x_newLng,6);
       txdata.latErr = myLatError;
       txdata.lngErr = myLngError;
       
@@ -134,7 +140,8 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
   int uprcount, lwrcount;
 
   // Sort error_set by Relative Bias and Estimated Relative Bias 
-  qsort(diff_error_set, n_ii, sizeof(double), qsortCompare);
+  qsort(&diff_error_set, n_ii, sizeof(double), qsortCompare);
+  //Serial.print("diff err: "); Serial.println(diff_error_set[0],6);
   double *srtd_neigh = diff_error_set;
   double x_new;
   
@@ -154,30 +161,39 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
 
     // Dynamically Allocate Memory for kept_neigh Array
     int kept_neigh_size = uprcount - lwrcount;
-    double* kept_neigh = 0;
+  double* kept_neigh = 0;
     kept_neigh = new double[kept_neigh_size];
+    //Serial.print("kept Neigh Size: "); Serial.println(kept_neigh_size);
+    //Serial.print("srtdneigh: "); Serial.println(srtd_neigh[0],6);
+    //Serial.print("lwrcount: "); Serial.println(lwrcount,6);
+
+
 
 
     // Remove up to 2F lowest and 2F highest gps error estimates 
     for (int i = 0; i < kept_neigh_size; i++)
       kept_neigh[i] = srtd_neigh[i + lwrcount];
+      //Serial.print("kept_neight[i] "); Serial.println(kept_neigh[0],6);
+      
     
     // Calculate number of kept neighbors
     int num_kept = uprcount - lwrcount;
+    //Serial.print("num_kept "); Serial.println(num_kept,6);
 
     // Calculate Weight to Use in Update (m_k)
     double m_k = 1.0 / (num_kept + 1);
+    //Serial.print("m_k "); Serial.println(m_k,6);
 
     // Calculate Sum of Pseudo Errors 
     double sumPseudoErrors = 0;
     for (int i = 0; i<num_kept; i++)
       sumPseudoErrors += kept_neigh[i];
+      //Serial.print("sumPseudoErrors "); Serial.println(sumPseudoErrors,6);
    
     if (type == "LAT") {
      
     // Calculate Leaky-Average of GPS Errors
-    myLatError = m_k*sumPseudoErrors;  
-    
+    myLatError = m_k*sumPseudoErrors;    
     // Calculate position estimate (x_new)
     x_new = x_prev - myLatError;
     }
