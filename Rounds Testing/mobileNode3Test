@@ -109,12 +109,12 @@ void loop(){
 
     if(RSU && mobileNode1 && mobileNode2 && mobileNode4){
       x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
-        Serial.print("myLatError "); Serial.println(myLatError,6);
-        Serial.print("my new Lat: "); Serial.println(x_newLat,6);
+      //Serial.print("myLatError "); Serial.println(myLatError,6);
+      //Serial.print("my new Lat: "); Serial.println(x_newLat,6);
 
       x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F,"");
-        Serial.print("myLngError "); Serial.println(myLngError,6);
-        Serial.print("my new Lng: "); Serial.println(x_newLng,6);
+      //Serial.print("myLngError "); Serial.println(myLngError,6);
+      //Serial.print("my new Lng: "); Serial.println(x_newLng,6);
       txdata.latErr = myLatError;
       txdata.lngErr = myLngError;
       
