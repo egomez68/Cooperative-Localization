@@ -74,8 +74,8 @@ void loop(){
   
   while (Serial1.available () > 0) {
     if (gps.encode(Serial1.read() )) {
-      gpsLat = gps.location.lat();
-      gpsLng = gps.location.lng();
+      x_prevLat = gps.location.lat();
+      x_prevLng = gps.location.lng();
       }
     }
 
