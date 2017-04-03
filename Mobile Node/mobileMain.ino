@@ -71,9 +71,11 @@ void setup(){
 void loop(){
   // Make sure to change the name of the file in all of the locations that it is used
   //dataFile = SD.open("test.txt", FILE_WRITE);
-  x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
-  x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F, "");
   if(newErrorFlag == true){
+    noInterrupts();
+    x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
+    x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F, "");
+    interrupts();
      // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
     for (int j = 0; j < 15; j++) {
       neighLatError[j] = 0;
