@@ -27,7 +27,7 @@ SEND_DATA_STRUCTURE txdata;
 //********** Variable Declaration **********//
 
 double knownLat     =  40.7633224700,
-       knownLng     = -83.8432279800;
+       knownLng     = -83.8429317700;
 
 int gpsPin       = 19;
 
