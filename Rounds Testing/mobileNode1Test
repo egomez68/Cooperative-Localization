@@ -81,8 +81,8 @@ void loop(){
     if (!RSU || !mobileNode2 || !mobileNode3 || !mobileNode4){
       if(ETin.receiveData()){
         switch(rxdata.nodeID){
-          case 1:
-            mobileNode1 = true;
+          case 2:
+            mobileNode2 = true;
             neighLatError[0] = rxdata.latErr; 
             neighLngError[0]= rxdata.lngErr; 
             break;
