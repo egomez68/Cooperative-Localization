@@ -25,7 +25,7 @@ SEND_DATA_STRUCTURE txdata;
 
 //********** Variable Declaration **********//
 
-bool   ride = true;
+bool   ride = false;
 
 double knownLat     =  40.7631836722,
        knownLng     = -83.8427340472;
@@ -56,12 +56,6 @@ void loop(){
     }
   }
 }
-
-//void receiveGPS(){
-//  txdata.latErr = gps.location.lat() - knownLat;
-//  txdata.lngErr = gps.location.lng() - knownLng;
-//  ETout.sendData();
-//}
 
 /**
  * When Beacon is received, Begin R.I.D.E
