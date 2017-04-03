@@ -28,7 +28,7 @@ SEND_DATA_STRUCTURE txdata;
 bool   ride = false;
 
 double knownLat     =  40.7630277750,
-       knownLng     = -83.2785641700;
+       knownLng     = -83.8427856417;
 
 int    interruptPin = 20,
        gpsPin       = 19;
