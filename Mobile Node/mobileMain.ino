@@ -42,7 +42,7 @@ SEND_DATA_STRUCTURE txdata;
 
 bool newErrorFlag = false;
 int CS_PIN = 53;
-int F = 2;
+int F = 0; // Redundancy parameter set to 0
 int i = 0;
 int n_ii = 15;
 int interruptPin = 20;
@@ -72,7 +72,7 @@ void loop(){
   // Make sure to change the name of the file in all of the locations that it is used
   //dataFile = SD.open("test.txt", FILE_WRITE);
   x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
-  x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F);
+  x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F, "");
   if(newErrorFlag == true){
      // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
     for (int j = 0; j < 15; j++) {
@@ -145,7 +145,7 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
   int uprcount, lwrcount;
 
   // Sort error_set by Relative Bias and Estimated Relative Bias 
-  qsort(diff_error_set, n_ii, sizeof(double), qsortCompare);
+  qsort(&diff_error_set, n_ii, sizeof(double), qsortCompare);
   double *srtd_neigh = diff_error_set;
   double x_new;
   
