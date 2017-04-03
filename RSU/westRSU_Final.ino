@@ -17,8 +17,8 @@ EasyTransfer ETout;
 TinyGPSPlus gps;
 
 struct SEND_DATA_STRUCTURE{
-  int latErr;
-  int lngErr;
+  double latErr;
+  double lngErr;
 };
 
 SEND_DATA_STRUCTURE txdata;
@@ -35,23 +35,26 @@ int    interruptPin = 20,
 
 void setup(){
   Serial.begin(9600);
+  Serial1.begin(9600);
   //start the library, pass in the data details and the name of the serial port.
   ETout.begin(details(txdata), &Serial);
   delay(1000);
   attachInterrupt(digitalPinToInterrupt(interruptPin), beginRIDE, RISING);  // Use this to start the R.I.D.E algorithm
-  attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);
+  //attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);
   
 }
 
 void loop(){
-  while(!ride){noInterrupts();}
-  interrupts();
-}
 
-void receiveGPS(){
-  txdata.latErr = gps.location.lat() - knownLat;
-  txdata.lngErr = gps.location.lng() - knownLng;
-  ETout.sendData();
+  if (Serial1.available() > 0 ) {
+
+    if (gps.encode(Serial1.read() ) ) {
+      txdata.latErr = gps.location.lat() - knownLat;
+      txdata.lngErr = gps.location.lng() - knownLng;
+      //Serial.println("Sending data");
+      ETout.sendData();
+    }
+  }
 }
 
 /**
