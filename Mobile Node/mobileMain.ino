@@ -147,7 +147,7 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
   int uprcount, lwrcount;
 
   // Sort error_set by Relative Bias and Estimated Relative Bias 
-  qsort(&diff_error_set, n_ii, sizeof(double), qsortCompare);
+  qsort(&diff_error_set[n_ii], n_ii, sizeof(double), qsortCompare);
   double *srtd_neigh = diff_error_set;
   double x_new;
   
