@@ -3,11 +3,10 @@
  *  Description : Implements the R.I.D.E localization algorithm. 
  *                Upload to mobile node 1
  *  Author      : Edgar Gomez, Tim Coulter
- *  Date        : 2 April 2017
- *  Version     : 1.0
+ *  Date        : 31 March 2017
+ *  Version     : 2.0
  */
  
-/*** Make sure to incorporate the "beginRide" function - See the RSU ***/
 
 //********** Library Includes **********//
 
@@ -24,7 +23,7 @@ File dataFile;
 struct RECEIVE_DATA_STRUCTURE{
   //put your variable definitions here for the data you want to receive
   //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-  int nodeID = 1;
+  int nodeID;
   double latErr;
   double lngErr;
 };
@@ -32,9 +31,9 @@ struct RECEIVE_DATA_STRUCTURE{
 struct SEND_DATA_STRUCTURE{
   //put your variable definitions here for the data you want to receive
   //THIS MUST BE EXACTLY THE SAME ON THE OTHER ARDUINO
-  int nodeID;
-  double latErr;
-  double lngErr;
+  int nodeID = 1;
+  double latErr = 0;
+  double lngErr = 0;
 };
 
 //give a name to the group of data
@@ -43,90 +42,97 @@ SEND_DATA_STRUCTURE txdata;
 
 //********** Variable Declaration **********//
 
-bool RSU = false,
-     mobileNode2 = false,
-     mobileNode3 = false,
-     mobileNode4 = false;
+bool RSU = false;
+bool MN2 = false;
        
 int CS_PIN = 53;
 int F = 0;
 int i = 0;
-int n_ii = 4;
+int n_ii = 2;
 int gpsPin = 19;
+int roundNumber = 0;
+
+double x_gpsLat, x_gpsLng;
 double gpsLat, gpsLng;
-double x_prevLat, x_prevLng;
-double x_newLat, x_newLng;
-double neighLatError[4], neighLngError[4];
+double x_estLat, x_estLng;
+double neighLatError[2], neighLngError[2];
 double myLatError,myLngError;
 
 void setup(){
   Serial.begin(9600);
   Serial1.begin(9600);
   delay(1000);
+  
   //start the library, pass in the data details and the name of the serial port.
   ETin.begin(details(rxdata), &Serial);
   ETout.begin(details(txdata), &Serial);
+  
   initializeSD();
 }
 
 void loop(){
-  
   while (Serial1.available () > 0) {
     if (gps.encode(Serial1.read() )) {
-      x_prevLat = gps.location.lat();
-      x_prevLng = gps.location.lng();
-      }
-    }
-
-    if (!RSU || !mobileNode2 || !mobileNode3 || !mobileNode4){
-      if(ETin.receiveData()){
-        switch(rxdata.nodeID){
-          case 2:
-            mobileNode2 = true;
-            neighLatError[0] = rxdata.latErr; 
-            neighLngError[0]= rxdata.lngErr; 
-            break;
-          case 3:
-            mobileNode3 = true;
-            neighLatError[1] = rxdata.latErr; 
-            neighLngError[1] = rxdata.lngErr; 
-            break;
-          case 4:
-            mobileNode4 = true;
-            neighLatError[2] = rxdata.latErr; 
-            neighLngError[2] = rxdata.lngErr; 
-            break;
-          case 5:
-            RSU = true;
-            neighLatError[3] = rxdata.latErr; 
-            neighLngError[3] = rxdata.lngErr; 
-            break;
-            }
-        
-      }
-    }
-
-    if(RSU && mobileNode2 && mobileNode3 && mobileNode4){
-      x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
-      x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F,"");
-     
-      txdata.latErr = myLatError;
-      txdata.lngErr = myLngError;
+      if(roundNumber == 0){
+        x_estLat = gps.location.lat();
+        x_estLng = gps.location.lng();
+        x_gpsLat = x_estLat;
+        x_gpsLng = x_estLng;
       
-      dataFile = SD.open("test.txt", FILE_WRITE);
-      dataFile.print(x_newLat,6);
-      dataFile.print(",");
-      dataFile.println(x_newLng,6);
-      dataFile.close(); // I had to add this or else the data would not get wrote to the SD card. It would create the file but not write anything. Once I closed the file it started working properly
-
-      RSU = false;
-      mobileNode2 = false;
-      mobileNode3 = false;
-      mobileNode4 = false;
+        dataFile = SD.open("test.txt", FILE_WRITE);
+        dataFile.print(x_estLat,6);
+        dataFile.print(",");
+        dataFile.print(x_estLng,6);
+        dataFile.print(",");
+        dataFile.println(roundNumber);
+        dataFile.close();
+      
+        roundNumber++; 
+        ETout.sendData();
       }
- 
+      else{
+        x_gpsLat = gps.location.lat();
+        x_gpsLng = gps.location.lng();
+      }
+    }
+  }
+  if (!RSU || !MN2){
+    if(ETin.receiveData()){
+      switch(rxdata.nodeID){
+        case 2:
+          MN2 = true;
+          neighLatError[0] = (x_gpsLat - x_estLat) - rxdata.latErr;
+          neighLngError[0] = (x_gpsLng - x_estLng) - rxdata.lngErr;
+          break;
+        case 5:
+          RSU = true;
+          neighLatError[1] = (x_gpsLat - x_estLat) - rxdata.latErr;
+          neighLngError[1] = (x_gpsLng - x_estLng) - rxdata.lngErr;
+          break;
+      }
+    }
+  }
+  if(RSU && MN2){
+    x_estLat = positionEstimateUpdate(x_estLat, neighLatError, n_ii, F, "LAT");
+    x_estLng = positionEstimateUpdate(x_estLng, neighLngError, n_ii, F,"");
+
+    txdata.latErr = x_gpsLat - x_estLat;
+    txdata.lngErr = x_gpsLng - x_estLng;
+    
+    dataFile = SD.open("test.txt", FILE_WRITE);
+    dataFile.print(x_estLat,6);
+    dataFile.print(",");
+    dataFile.print(x_estLng,6);
+    dataFile.print(",");
+    dataFile.println(roundNumber);
+    dataFile.close(); // I had to add this or else the data would not get wrote to the SD card. It would create the file but not write anything. Once I closed the file it started working properly
+
+    RSU = false;
+    MN2 = false;
+      
+    roundNumber++;
     ETout.sendData();
-    delay(100);
+  }
 }
 
 
@@ -154,21 +160,20 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
 
   // Initialize Local Variables
   int uprcount, lwrcount;
-
+  
   // Sort error_set by Relative Bias and Estimated Relative Bias 
-  qsort(&diff_error_set, n_ii, sizeof(double), qsortCompare);
-  //Serial.print("diff err: "); Serial.println(diff_error_set[0],6);
+  qsort(&diff_error_set[2], n_ii, sizeof(double), qsortCompare);
+  
   double *srtd_neigh = diff_error_set;
   double x_new;
-  
+
   //If Number of neighbors is greater than Redundency Parameter
   if (n_ii>F) {
-
     // Remove values smaller than 0 in the F smallest values
     int lwrcount = 0;
     while (lwrcount<F && srtd_neigh[lwrcount]<0)
       lwrcount = lwrcount + 1;
-
+      
     // Remove values larger than 0 in the F largest values
     int uprcount = n_ii;
     while (uprcount > n_ii - F && srtd_neigh[uprcount] > 0) {
@@ -177,16 +182,20 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
 
     // Dynamically Allocate Memory for kept_neigh Array
     int kept_neigh_size = uprcount - lwrcount;
-  double* kept_neigh = 0;
+    double* kept_neigh = 0;
+    
     kept_neigh = new double[kept_neigh_size];
+
+
 
     // Remove up to 2F lowest and 2F highest gps error estimates 
     for (int i = 0; i < kept_neigh_size; i++)
-      kept_neigh[i] = srtd_neigh[i + lwrcount];      
+      kept_neigh[i] = srtd_neigh[i + lwrcount];
+      
     
     // Calculate number of kept neighbors
     int num_kept = uprcount - lwrcount;
-   
+
     // Calculate Weight to Use in Update (m_k)
     double m_k = 1.0 / (num_kept + 1);
 
@@ -194,12 +203,12 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
     double sumPseudoErrors = 0;
     for (int i = 0; i<num_kept; i++)
       sumPseudoErrors += kept_neigh[i];
-   
+
     if (type == "LAT") {
-     
+      
     // Calculate Leaky-Average of GPS Errors
-    myLatError = m_k*sumPseudoErrors;    
-    
+    myLatError = m_k*sumPseudoErrors;   
+     
     // Calculate position estimate (x_new)
     x_new = x_prev - myLatError;
     }
@@ -212,7 +221,7 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
 
   else
     x_new = x_prev;
-    
+
   return x_new;
 }
 
