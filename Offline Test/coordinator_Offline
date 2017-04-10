@@ -1,0 +1,63 @@
+#include <TinyGPS++.h>
+#include <SD.h>
+
+TinyGPSPlus gps;
+File dataFile;
+
+int CS_PIN = 53;
+long int startTime, gpsTime;
+double gpsLat, gpsLng;
+int gpsPin = 19;
+//int ridePin = 20;
+
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  delay(1000);
+  initializeSD();
+  Serial.println(""); // Sends message
+  startTime = micros();
+  //attachInterrupt(digitalPinToInterrupt(interruptPin), beginRIDE, RISING);  // Use this to start the R.I.D.E algorithm
+  attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+  
+  //Serial.println(""); // Begins the R.I.D.E. alg
+  
+  while (Serial.available() > 0) {
+      
+    dataFile = SD.open("test.txt", FILE_WRITE);
+    dataFile.print(gpsLat,6);
+    dataFile.print(",");
+    dataFile.print(gpsLng,6);
+    dataFile.print(",");
+    dataFile.println(gpsTime - startTime);
+    dataFile.close();
+  }
+}
+
+void initializeSD() {
+  pinMode(10, OUTPUT); // Must declare 10 an output and reserve it to keep SD card happy
+  SD.begin(CS_PIN);    // Initialize the SD card reader
+
+ // Make sure the name of the file is small enough 
+  if (SD.exists("test.txt")) { // Delete old data files to start fresh
+      SD.remove("test.txt");
+  }
+}
+
+void receiveGPS() {
+
+  while (Serial1.available() > 0) {
+
+    if (gps.encode(Serial1.read() ) ) {
+      gpsTime = micros();
+      gpsLat = gps.location.lat();
+      gpsLng = gps.location.lng();
+    }
+  }
+}
+
