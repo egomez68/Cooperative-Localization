@@ -1,0 +1,89 @@
+/* 
+ *  File        : MN1_Offline.ino
+ *  Description : Implements the R.I.D.E localization algorithm. 
+ *                Upload to mobile node 1
+ *  Author      : Edgar Gomez, Tim Coulter
+ *  Date        : 6 April 2017
+ *  Version     : 2.0
+ */
+ 
+
+//********** Library Includes **********//
+
+//#include <EasyTransfer.h>
+#include <TinyGPS++.h>
+#include <SD.h>
+
+//********** Object Instantiation **********//
+
+//EasyTransfer ETin, ETout; 
+TinyGPSPlus gps;
+File dataFile;
+
+
+
+//********** Variable Declaration **********//
+
+
+       
+int CS_PIN = 53;
+
+long int startTime, gpsTime;
+
+double x_estLat, x_estLng;
+
+bool ride;
+
+
+void setup(){
+  Serial.begin(9600);
+  Serial1.begin(9600);
+  delay(1000);
+  
+  initializeSD();
+  
+//        dataFile = SD.open("test.txt", FILE_WRITE);
+//        dataFile.print(x_estLat,6);
+//        dataFile.print(",");
+//        dataFile.print(x_estLng,6);
+//        dataFile.print(",");
+//        dataFile.println(gpsTime - startTime);
+//        dataFile.close();
+}
+
+void loop(){
+
+  while(Serial.available() && ride==false){
+    Serial.print("TEST");
+    ride = true;
+    startTime = micros();
+  }
+  
+  if(ride==true){
+  while (Serial1.available () > 0) {
+    if (gps.encode(Serial1.read() )) {
+        x_estLat = gps.location.lat();
+        x_estLng = gps.location.lng();
+      gpsTime = micros();
+        dataFile = SD.open("test.txt", FILE_WRITE);
+        dataFile.print(x_estLat,6);
+        dataFile.print(",");
+        dataFile.print(x_estLng,6);
+        dataFile.print(",");
+        dataFile.println(gpsTime - startTime);
+        dataFile.close();
+
+      }
+    }
+  }
+}
+void initializeSD()
+{
+  pinMode(10, OUTPUT); // Must declare 10 an output and reserve it to keep SD card happy
+  SD.begin(CS_PIN);    // Initialize the SD card reader
+
+ // Make sure the name of the file is small enough 
+  if (SD.exists("test.txt")) { // Delete old data files to start fresh
+      SD.remove("test.txt");
+  }
+}
