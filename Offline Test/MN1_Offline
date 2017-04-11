@@ -27,7 +27,7 @@ File dataFile;
 
        
 int CS_PIN = 53;
-
+int gpsPin = 19;
 long int startTime, gpsTime;
 
 double x_estLat, x_estLng;
@@ -39,7 +39,7 @@ void setup(){
   Serial.begin(9600);
   Serial1.begin(9600);
   delay(1000);
-  
+  attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);
   initializeSD();
   
 //        dataFile = SD.open("test.txt", FILE_WRITE);
@@ -60,11 +60,10 @@ void loop(){
   }
   
   if(ride==true){
-  while (Serial1.available () > 0) {
-    if (gps.encode(Serial1.read() )) {
-        x_estLat = gps.location.lat();
-        x_estLng = gps.location.lng();
-      gpsTime = micros();
+  while (Serial.available () > 0) {
+        //x_estLat = gps.location.lat();
+        //x_estLng = gps.location.lng();
+        //gpsTime = micros();
         dataFile = SD.open("test.txt", FILE_WRITE);
         dataFile.print(x_estLat,6);
         dataFile.print(",");
@@ -73,7 +72,18 @@ void loop(){
         dataFile.println(gpsTime - startTime);
         dataFile.close();
 
-      }
+    }
+  }
+}
+
+void receiveGPS() {
+
+  while (Serial1.available() > 0) {
+
+    if (gps.encode(Serial1.read() ) ) {
+      gpsTime = micros();
+      x_estLat = gps.location.lat();
+      x_estLng = gps.location.lng();
     }
   }
 }
