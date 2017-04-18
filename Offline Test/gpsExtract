@@ -1,0 +1,42 @@
+#include <SD.h>
+
+File dataFile;
+
+int CS_PIN = 53;
+String gpsStream;
+char c;
+boolean newMessage;
+void setup() {
+Serial.begin(9600);
+Serial1.begin(9600);
+delay(1000);
+initializeSD();
+}
+
+void loop() {
+  while (Serial1.available()) // if there's a byte waiting to be read
+  {
+    c = Serial1.read(); // read it
+    gpsStream+=c;
+    newMessage= true;
+  }
+
+  if(newMessage == true){
+    dataFile = SD.open("test.txt", FILE_WRITE);
+    dataFile.print(gpsStream);
+    dataFile.close();
+    gpsStream = "";
+  }
+  
+}
+
+void initializeSD()
+{
+  pinMode(10, OUTPUT); // Must declare 10 an output and reserve it to keep SD card happy
+  SD.begin(CS_PIN);    // Initialize the SD card reader
+
+ // Make sure the name of the file is small enough 
+  if (SD.exists("test.txt")) { // Delete old data files to start fresh
+      SD.remove("test.txt");
+  }
+}
