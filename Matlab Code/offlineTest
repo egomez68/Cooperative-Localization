@@ -1,0 +1,38 @@
+clc;clear;close all;
+
+
+[latError_meters1,lngError_meters1,utcTimeDouble1] = myGpsParse('northRSU.TXT');
+[latError_meters2,lngError_meters2,utcTimeDouble2] = myGpsParse('westRSU.TXT');
+[latError_meters3,lngError_meters3,utcTimeDouble3] = myGpsParse('southRSU.TXT');
+[latError_meters4,lngError_meters4,utcTimeDouble4] = myGpsParse('northAtStop.TXT');
+[latError_meters5,lngError_meters5,utcTimeDouble5] = myGpsParse('eastAtStop.TXT');
+[latError_meters6,lngError_meters6,utcTimeDouble6] = myGpsParse('southAtStop.TXT');
+[latError_meters7,lngError_meters7,utcTimeDouble7] = myGpsParse('northmost.TXT');
+
+figure(1)
+hold on
+title('Latitude Error')
+xlabel('UTC Time')
+ylabel('Meters')
+plot(utcTimeDouble1(2:end),latError_meters1(2:end),'DisplayName','North RSU')
+plot(utcTimeDouble2(2:end),latError_meters2(2:end),'DisplayName','West RSU')
+plot(utcTimeDouble3(2:end),latError_meters3(2:end),'DisplayName','South RSU')
+plot(utcTimeDouble4(2:end),latError_meters4(2:end),'DisplayName','South at Stop')
+plot(utcTimeDouble5(2:end),latError_meters5(2:end),'DisplayName','North at Stop')
+plot(utcTimeDouble6(2:end),latError_meters6(2:end),'DisplayName','East at Stop')
+plot(utcTimeDouble7(2:end),latError_meters7(2:end),'DisplayName','Northmost')
+legend('show')
+
+figure(2)
+title('Longitude Error')
+xlabel('UTC Time')
+ylabel('Meters')
+hold on
+plot(utcTimeDouble1(2:end),lngError_meters1(2:end),'DisplayName','North RSU')
+plot(utcTimeDouble2(2:end),lngError_meters2(2:end),'DisplayName','West RSU')
+plot(utcTimeDouble3(2:end),lngError_meters3(2:end),'DisplayName','South RSU')
+plot(utcTimeDouble4(2:end),lngError_meters4(2:end),'DisplayName','South at Stop')
+plot(utcTimeDouble5(2:end),lngError_meters5(2:end),'DisplayName','North at Stop')
+plot(utcTimeDouble6(2:end),lngError_meters6(2:end),'DisplayName','East at Stop')
+plot(utcTimeDouble7(2:end),lngError_meters7(2:end),'DisplayName','Northmost')
+legend('show')
