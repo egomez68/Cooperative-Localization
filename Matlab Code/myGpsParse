@@ -1,0 +1,172 @@
+function [latError_meters,lngError_meters,utcTimeDouble] = myGpsParse(fileName)
+
+%% North Lane Known Coordinates
+
+%North RSU
+northRSU_KnownLat = 4045.793482;
+northRSU_KnownLng = 8350.575906;
+
+%North At Stop
+northAtStop_KnownLat = 4045.794871;
+northAtStop_KnownLng = 8350.572826;
+
+%North in Lane
+
+%Northmost
+northmost_KnownLat = 4045.803998;
+northmost_KnownLng = 8350.572796;
+
+%% East Lane Known Coordinates
+
+%East RSU
+
+%East At Stop
+eastAtStop_KnownLat = 4045.788657;
+eastAtStop_KnownLng = 8350.562293;
+
+%East in Lane
+
+%Eastmost 
+
+%% South Lane Known Coordinates
+
+%South RSU
+southRSU_KnownLat = 4045.781667;
+southRSU_KnownLng = 8350.567139;
+
+%South At Stop
+southAtStop_KnownLat = 4045.780459;
+southAtStop_KnownLng = 8350.570274;
+
+%South in Lane
+
+%Southmost 
+
+%% West Lane Known Coordinates
+
+%West RSU
+westRSU_KnownLat = 4045.784656
+westRSU_KnownLng = 8350.579798
+
+%West At Stop
+
+%West in Lane
+
+%Westmost 
+
+
+
+
+%%
+
+fileID = fopen(fileName,'r');
+northRSUData = fscanf(fileID,'%c');
+nmeaSentences = strsplit(northRSUData,'$');
+
+parts = strread(northRSUData,'%s','delimiter','$');
+
+for i=2:numel(parts)
+    parts(i) = strcat('$',parts(i));
+end
+num =0;
+x = 0;
+for i=1:numel(parts)
+b = [parts{i}];
+if length(b) > 2
+if strcmp(b(1:6),'$GPGLL');
+    
+    x = x+1;
+    
+    fields = textscan(char(parts(i)),'%s','delimiter',',');
+    fields{1}{end+1} = fields{1}{end}(end-1:end);
+    fields{1}(end-1) = strtok(fields{1}(end-1), '*');
+    fields = char(fields{1});
+
+    lat  = fields(2,1:end);
+    latitude{x}  = lat(1:10);
+    lon  =  fields(4,1:end);
+    longitude{x}  =  lon(1:10);
+        
+    if(length(fields) == 11) 
+        utcTime{x}  =  fields(6,1:9);
+    end
+end
+end
+end
+
+for i=2:numel(longitude)
+    longitudeDD(i) = floor(str2double(([longitude(i)]))/100);
+    longitudeMM(i) = rem(str2double(([longitude(i)])),100);
+end
+
+for i=2:numel(latitude)
+    latitudeDD(i) = floor(str2double(([latitude(i)]))/100);
+    latitudeMM(i) = rem(str2double(([latitude(i)])),100);
+end
+
+for i=2:numel(utcTime)
+    utcTimeDouble(i) = str2double([utcTime{i}]);
+end
+
+for i=1:numel(latitude)
+latDDMM(i) = str2double([latitude{i}]);
+end
+
+for i=1:numel(longitude)
+lngDDMM(i) = str2double([longitude{i}]);
+end
+
+switch fileName
+case 'northRSU.TXT'
+latDDMM_error = northRSU_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = northRSU_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(northRSU_KnownLng)
+
+case 'westRSU.TXT'
+latDDMM_error = westRSU_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = westRSU_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(westRSU_KnownLng)
+
+case 'southRSU.TXT'
+latDDMM_error = southRSU_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = southRSU_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(southRSU_KnownLng)
+
+case 'northAtStop.TXT'
+latDDMM_error = northAtStop_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = northAtStop_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(northAtStop_KnownLng)
+
+case 'eastAtStop.TXT'
+latDDMM_error = eastAtStop_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = eastAtStop_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(eastAtStop_KnownLng)
+
+case 'southAtStop.TXT'
+latDDMM_error = southAtStop_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = southAtStop_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(southAtStop_KnownLng)
+
+case 'northmost.TXT'
+latDDMM_error = northmost_KnownLat - latDDMM
+latError_meters = 111049.3*(latDDMM_error/60);
+
+lngDDMM_error = northmost_KnownLng - lngDDMM
+lngError_meters = 111049.3*(lngDDMM_error/60)*cosd(southAtStop_KnownLng)
+end
+
+
+
+end
