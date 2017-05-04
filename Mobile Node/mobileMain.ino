@@ -41,13 +41,13 @@ SEND_DATA_STRUCTURE txdata;
 //********** Variable Declaration **********//
 
 bool newErrorFlag = false;
-int CS_PIN = 53;
+int CS_PIN = 53; // Chip Select pin, used for the SD card - make sure the SD card is plugged into pin 53 on the Arduino
 int F = 0; // Redundancy parameter set to 0
 int i = 0;
-int n_ii = 15;
+int n_ii = 15; // Number of neighbors (can be configured based on the number of neighbors in the network)
 int interruptPin = 20;
 int gpsPin = 19;
-double GPSReceiveTime; // Store the value of micros() in this variable and save it to the SD card
+double GPSReceiveTime; // Store the value of micros() in this variable and save it to the SD card, for the system time that the GPS message was received
 double gpsLat, gpsLng;
 double x_prevLat, x_prevLng;
 double x_newLat, x_newLng;
@@ -64,7 +64,6 @@ void setup(){
   ETin.begin(details(rxdata), &Serial);
   ETout.begin(details(txdata), &Serial);
   initializeSD();
-  //attachInterrupt(digitalPinToInterrupt(interruptPin), beginRIDE, RISING);  // Use this to start the R.I.D.E algorithm
   attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);
 }
 
@@ -76,12 +75,13 @@ void loop(){
     x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
     x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F, "");
     interrupts(); // Turn interrupts back on
-   
-     // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
+  
+    // Clear your arrays after you get a new GPS reading (i.e. newErrorFlag = true)
     for (int j = 0; j < 15; j++) {
       neighLatError[j] = 0;
       neighLngError[j] = 0;
     }
+    // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
     dataFile = SD.open("test.txt", FILE_WRITE);
     txdata.latErr = myLatError;
     txdata.lngErr = myLngError;
@@ -92,10 +92,10 @@ void loop(){
     dataFile.print(x_newLng,6);
     dataFile.print(",");
     dataFile.println(GPSReceiveTime);
-    dataFile.close(); // I had to add this or else the data would not get wrote to the SD card. It would create the file but not write anything. Once I closed the file it started working properly
+    dataFile.close(); // Make sure to close the file once you are done writing to it
   }
   
- // Remember to clear all of the arrays and reset i back to 0 - I don't know where that should be done.
+  // If you do not have new GPS data, send the data that you have and recieve data from your neighbors
   if(newErrorFlag == false){
     if(ETin.receiveData()){
       neighLatError[i] = rxdata.latErr;
@@ -116,9 +116,7 @@ void receiveGPS() {
       x_prevLng = gps.location.lng();
     }
   }
- // These two function calls should not be here - they should be in the main loop or elsewhere - not in the ISR
-  //x_newLat = positionEstimateUpdateLatitude(x_prevLat, neighLatError, n_ii, F);
-  //x_newLng = positionEstimateUpdateLongitude(x_prevLng, neighLngError, n_ii, F);
+  // Set your newErrorFlag to true since you have new GPS data to work with
   newErrorFlag = true;
   i = 0; // Reset the i counter to 0
 }
@@ -143,6 +141,7 @@ int qsortCompare(const void * arg1, const void * arg2) {
   return 0;
 }
 
+// Estimates your new position based on the params you pass in
 double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, int F, String type) {
 
   // Initialize Local Variables
