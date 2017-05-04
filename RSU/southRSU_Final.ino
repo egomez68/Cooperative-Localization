@@ -25,7 +25,6 @@ SEND_DATA_STRUCTURE txdata;
 
 //********** Variable Declaration **********//
 
-bool   ride = false;
 
 double knownLat     =  40.7630277750,
        knownLng     = -83.8427856417;
@@ -39,7 +38,6 @@ void setup(){
   //start the library, pass in the data details and the name of the serial port.
   ETout.begin(details(txdata), &Serial);
   delay(1000);
-  attachInterrupt(digitalPinToInterrupt(interruptPin), beginRIDE, RISING);  // Use this to start the R.I.D.E algorithm
   //attachInterrupt(digitalPinToInterrupt(gpsPin), receiveGPS, RISING);
   
 }
@@ -55,12 +53,4 @@ void loop(){
       ETout.sendData();
     }
   }
-}
-
-/**
- * When Beacon is received, Begin R.I.D.E
- */
-void beginRIDE() {
-  ride = true;
-  detachInterrupt(digitalPinToInterrupt(interruptPin));
 }
