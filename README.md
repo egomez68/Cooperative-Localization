@@ -14,7 +14,6 @@ We should provide links to provide the newer students information that would ben
 * Arduino Tutorials
 * XCTU Tutorials
 * How Does GPS Work
-* Anything we wish that we had when we started!!!
 
 ### Required Software
 
