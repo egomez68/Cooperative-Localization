@@ -3,10 +3,6 @@
 
 #include <TinyGPS++.h>
 
-// Assign pins to connect gps to
-int RXPin; // add value for pin
-int TXPin; // add value for pin
-
 // Instantiate TinyGPS++ object named "gps"
 TinyGPSPlus gps;
 
@@ -27,7 +23,9 @@ void loop()
     {
       float gpsLng,gpsLat;
       gpsLng = gps.location.lng(); // get longitude
-      gpslat = gps.location.lat(); // get latitude
+      gpsLat = gps.location.lat(); // get latitude
+      Serial.print("Lat: "); Serial.println(gpsLat);
+      Serial.print("Lng: "); Serial.println(gpsLng);
     }
   }
 }
