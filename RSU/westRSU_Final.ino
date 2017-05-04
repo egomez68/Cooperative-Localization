@@ -25,8 +25,6 @@ SEND_DATA_STRUCTURE txdata;
 
 //********** Variable Declaration **********//
 
-bool   ride = false;
-
 double knownLat     =  40.7630776000,
        knownLng     = -83.8429966400;
 
@@ -55,12 +53,4 @@ void loop(){
       ETout.sendData();
     }
   }
-}
-
-/**
- * When Beacon is received, Begin R.I.D.E
- */
-void beginRIDE() {
-  ride = true;
-  detachInterrupt(digitalPinToInterrupt(interruptPin));
 }
