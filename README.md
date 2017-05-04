@@ -29,8 +29,6 @@ We need a list of software used here
 
 ## Platform
 
-Explain the testing platform that we are using along with its components:
-
 ### Arduino Mega
 ### XBee Communication Module
 ### RC Car
