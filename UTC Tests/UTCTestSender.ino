@@ -1,3 +1,7 @@
+/**
+* This block is the Arduino unit number 1.)
+* This block transmit the character received from the Python program over Serial1 to the Arduino unit that is being tested
+*/
 char incomingByte;
 void setup()
 {
