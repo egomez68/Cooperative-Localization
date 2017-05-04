@@ -72,10 +72,11 @@ void loop(){
   // Make sure to change the name of the file in all of the locations that it is used
   //dataFile = SD.open("test.txt", FILE_WRITE);
   if(newErrorFlag == true){
-    noInterrupts();
+    noInterrupts(); // Turn interrupts off during estimating new position
     x_newLat = positionEstimateUpdate(x_prevLat, neighLatError, n_ii, F, "LAT");
     x_newLng = positionEstimateUpdate(x_prevLng, neighLngError, n_ii, F, "");
-    interrupts();
+    interrupts(); // Turn interrupts back on
+   
      // I moved the opening of the dataFile here so we are only opening the file when we are going to write to it
     for (int j = 0; j < 15; j++) {
       neighLatError[j] = 0;
@@ -121,6 +122,7 @@ void receiveGPS() {
   newErrorFlag = true;
   i = 0; // Reset the i counter to 0
 }
+
 /**
  * Compare function to be used by quicksort to arrange elements
  * in ascending order.
@@ -207,152 +209,7 @@ double positionEstimateUpdate(double x_prev, double* diff_error_set, int n_ii, i
   return x_new;
 }
 
-/*** Consider merging positionEstimateUpdateLatitude and Longitude ***/
-
-/**
- * Performs the position estimate update stage in order to calculate
- * the new latitude of the mobile node.
- * 
- * @param x_prev
- * @param diff_error_set
- * @param n_ii
- * @param F
- * 
- * @returns x_new
- */
-/**
-double positionEstimateUpdateLatitude(double x_prev, double* diff_error_set, int n_ii, int F) {
-
-  // Initialize Local Variables
-  int uprcount, lwrcount;
-
-  // Sort error_set by Relative Bias and Estimated Relative Bias 
-  qsort(diff_error_set, n_ii, sizeof(double), qsortCompare);
-  double *srtd_neigh = diff_error_set;
-  double x_new;
-  
-  //If Number of neighbors is greater than Redundency Parameter
-  if (n_ii>F) {
-
-    // Remove values smaller than 0 in the F smallest values
-    int lwrcount = 0;
-    while (lwrcount<F && srtd_neigh[lwrcount]<0)
-      lwrcount = lwrcount + 1;
-
-    // Remove values larger than 0 in the F largest values
-    int uprcount = n_ii;
-    while (uprcount > n_ii - F && srtd_neigh[uprcount] > 0) {
-      uprcount = uprcount - 1;
-    }
-
-    // Dynamically Allocate Memory for kept_neigh Array
-    int kept_neigh_size = uprcount - lwrcount;
-    double* kept_neigh = 0;
-    kept_neigh = new double[kept_neigh_size];
-
-
-    // Remove up to 2F lowest and 2F highest gps error estimates 
-    for (int i = 0; i < kept_neigh_size; i++)
-      kept_neigh[i] = srtd_neigh[i + lwrcount];
-    
-    // Calculate number of kept neighbors
-    int num_kept = uprcount - lwrcount;
-
-    // Calculate Weight to Use in Update (m_k)
-    double m_k = 1.0 / (num_kept + 1);
-
-    // Calculate Sum of Pseudo Errors 
-    double sumPseudoErrors = 0;
-    for (int i = 0; i<num_kept; i++)
-      sumPseudoErrors += kept_neigh[i];
-
-    // Calculate Leaky-Average of GPS Errors
-    myLatError = m_k*sumPseudoErrors;  
-    
-    // Calculate position estimate (x_new)
-    x_new = x_prev - myLatError;
-
-  }
-
-  else
-    x_new = x_prev;
-    
-  return x_new;
-}**/
-
-/**
- * Performs the position estimate update stage in order to calculate
- * the new longitude of the mobile node.
- * 
- * @param x_prev
- * @param diff_error_set
- * @param n_ii
- * @param F
- * 
- * @returns x_new
- */
-/**
-double positionEstimateUpdateLongitude(double x_prev, double* diff_error_set, int n_ii, int F) {
-
-  // Initialize Local Variables
-  int uprcount, lwrcount;
-
-  // Sort error_set by Relative Bias and Estimated Relative Bias 
-  qsort(diff_error_set, n_ii, sizeof(double), qsortCompare);
-  double *srtd_neigh = diff_error_set;
-  double x_new;
-  
-  //If Number of neighbors is greater than Redundency Parameter
-  if (n_ii>F) {
-
-    // Remove values smaller than 0 in the F smallest values
-    int lwrcount = 0;
-    while (lwrcount<F && srtd_neigh[lwrcount]<0)
-      lwrcount = lwrcount + 1;
-
-    // Remove values larger than 0 in the F largest values
-    int uprcount = n_ii;
-    while (uprcount > n_ii - F && srtd_neigh[uprcount] > 0) {
-      uprcount = uprcount - 1;
-    }
-
-    // Dynamically Allocate Memory for kept_neigh Array
-    int kept_neigh_size = uprcount - lwrcount;
-    double* kept_neigh = 0;
-    kept_neigh = new double[kept_neigh_size];
-
-
-    // Remove up to 2F lowest and 2F highest gps error estimates 
-    for (int i = 0; i < kept_neigh_size; i++)
-      kept_neigh[i] = srtd_neigh[i + lwrcount];
-    
-    // Calculate number of kept neighbors
-    int num_kept = uprcount - lwrcount;
-
-    // Calculate Weight to Use in Update (m_k)
-    double m_k = 1.0 / (num_kept + 1);
-
-    // Calculate Sum of Pseudo Errors 
-    double sumPseudoErrors = 0;
-    for (int i = 0; i<num_kept; i++)
-      sumPseudoErrors += kept_neigh[i];
-
-    // Calculate Leaky-Average of GPS Errors
-    myLngError = m_k*sumPseudoErrors;  
-    
-    // Calculate position estimate (x_new)
-    x_new = x_prev - myLngError;
-
-  }
-
-  else
-    x_new = x_prev;
-    
-  return x_new;
-}**/
-
-/*** Consider merging positionEstimateUpdateLatitude and Longitude ***/
-
+// Init the SD card
 void initializeSD()
 {
   pinMode(10, OUTPUT); // Must declare 10 an output and reserve it to keep SD card happy
