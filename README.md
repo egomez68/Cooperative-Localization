@@ -1,6 +1,6 @@
 # Cooperative Localization
 
-Need to add project description here
+Cooperative Localization Capstone Project: 2016/2017
 
 ## Getting Started
 
