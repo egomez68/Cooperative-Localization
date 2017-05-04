@@ -1,3 +1,7 @@
+/**
+* Use this code to characterize the clock of the Arduino microcontroller. The unit will receive data from the first Arduino unit and listen
+* for the '$' character to start and stop the system timer, to compare the start and end time of the unit's clock.
+*/
 char incomingByte;
 long int startTime;
 long int endTime;
