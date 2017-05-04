@@ -11,7 +11,7 @@ int TXPin; // add value for pin
 TinyGPSPlus gps;
 
 // Instantiate integer with GPS baud rate I
-int GPSBaud; // add value for baud rate
+int GPSBaud = 9600; // add value for baud rate
 
 void setup()
 {
